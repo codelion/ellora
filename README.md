@@ -78,7 +78,7 @@ If you use Ellora recipes in your research, please cite:
 ```bibtex
 @misc{ellora2024,
   title={Ellora: Enhancing LLMs with LoRA - Standardized Recipes for Capability Enhancement},
-  author={Asankahya Sharma},
+  author={Asankhaya Sharma},
   year={2024},
   url={https://github.com/codelion/ellora}
 }
