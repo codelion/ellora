@@ -26,7 +26,7 @@ The LLM ecosystem has amazing infrastructure (LoRAX, PEFT, vLLM), but lacks **st
 - ⚡ **Speed**: 2-3x faster inference than FP16
 - 📊 **Method**: Teacher (FP16) → Student (INT4+LoRA) distillation
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1dwRbvxtSpCiKGgvbOwM9jboE5v8WgAd-?usp=sharing)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/codelion/ellora/blob/main/Ellora_Recipe_1_Self_Distillation_For_Quantization_Recovery.ipynb)
 
 **Key Innovation**: Uses [Magpie](https://arxiv.org/abs/2406.08464) self-data generation for perfect domain alignment - no external datasets needed!
 
