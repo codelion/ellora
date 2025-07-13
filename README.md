@@ -37,12 +37,12 @@ from peft import PeftModel
 
 # Load quantized model
 model = AutoModelForCausalLM.from_pretrained(
-    "Qwen/Qwen2-0.5B-Instruct",
+    "Qwen/Qwen3-0.6B",
     quantization_config=BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4")
 )
 
 # Load accuracy recovery adapter
-model = PeftModel.from_pretrained(model, "codelion/Qwen2-0.5B-Instruct-accuracy-recovery-lora")
+model = PeftModel.from_pretrained(model, "codelion/Qwen3-0.6B-accuracy-recovery-lora")
 
 # Use normally - now with recovered accuracy!
 ```
@@ -50,16 +50,9 @@ model = PeftModel.from_pretrained(model, "codelion/Qwen2-0.5B-Instruct-accuracy-
 #### Results
 | Model | Perplexity | Memory | Speed | Status |
 |-------|------------|--------|-------|---------|
-| FP16 Baseline | 2.45 | 1.0GB | 1.0x | ✅ |
-| INT4 Raw | 2.89 (+18%) | 0.25GB | 3.2x | ⚠️ |
-| INT4 + Ellora | 2.51 (+2.4%) | 0.28GB | 3.0x | ✅ |
-
-### 🚧 Coming Soon
-
-- **Recipe #2: Reasoning LoRA** - Enhanced logical reasoning using GRPO
-- **Recipe #3: Tool Calling LoRA** - Function calling and API interaction
-- **Recipe #4: Safety LoRA** - Improved safety and alignment  
-- **Recipe #5: Multilingual LoRA** - Enhanced multilingual performance
+| FP16 Baseline | 1.97 | 1.0GB | 1.0x | ✅ |
+| INT4 Raw | 2.40 (+21.8%) | 0.25GB | 3.2x | ⚠️ |
+| INT4 + Ellora | 2.09 (+5.7%) | 0.28GB | 3.0x | ✅ |
 
 ## 🏆 Model Zoo
 
@@ -68,7 +61,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 [![Models](https://img.shields.io/badge/🤗_Explore_Models-yellow?style=for-the-badge)](https://huggingface.co/models?other=ellora)
 
 ### Featured Models
-- [`codelion/Qwen2-0.5B-Instruct-accuracy-recovery-lora`](https://huggingface.co/codelion/Qwen2-0.5B-Instruct-accuracy-recovery-lora) - Accuracy recovery for Qwen2-0.5B
+- [`codelion/Qwen3-0.6B-accuracy-recovery-lora`](https://huggingface.co/ccodelion/Qwen3-0.6B-accuracy-recovery-lora) - Accuracy recovery for Qwen3-0.6B
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
