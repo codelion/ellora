@@ -61,7 +61,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 [![Models](https://img.shields.io/badge/🤗_Explore_Models-yellow?style=for-the-badge)](https://huggingface.co/models?other=ellora)
 
 ### Featured Models
-- [`codelion/Qwen3-0.6B-accuracy-recovery-lora`](https://huggingface.co/ccodelion/Qwen3-0.6B-accuracy-recovery-lora) - Accuracy recovery for Qwen3-0.6B
+- [`codelion/Qwen3-0.6B-accuracy-recovery-lora`](https://huggingface.co/codelion/Qwen3-0.6B-accuracy-recovery-lora) - Accuracy recovery for Qwen3-0.6B
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
