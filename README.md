@@ -54,6 +54,49 @@ model = PeftModel.from_pretrained(model, "codelion/Qwen3-0.6B-accuracy-recovery-
 | INT4 Raw | 2.40 (+21.8%) | 0.25GB | 3.2x | ⚠️ |
 | INT4 + Ellora | 2.09 (+5.7%) | 0.28GB | 3.0x | ✅ |
 
+### Recipe #2: Reasoning LoRA with GRPO
+**Problem**: LLMs often lack structured thinking patterns for complex reasoning  
+**Solution**: GRPO-trained adapter that teaches chain-of-thought with `<think></think>` tags
+
+- 🧠 **Goal**: Enhance reasoning capabilities through preference learning
+- 📝 **Method**: GRPO (Group Relative Policy Optimization) with self-rewarding
+- 🎯 **Feature**: Teaches structured thinking with clear reasoning steps
+- 💡 **Output**: Models that show their reasoning process transparently
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/codelion/ellora/blob/main/Ellora_Recipe_2_Reasoning_LoRA_with_Self-Rewarding_GRPO.ipynb)
+
+**Key Innovation**: Self-generated preference data with automated quality scoring - no need for human annotations or external preference datasets!
+
+#### Quick Start
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+# Load base model
+model = AutoModelForCausalLM.from_pretrained("google/gemma-3-1b-it")
+tokenizer = AutoTokenizer.from_pretrained("google/gemma-3-1b-it")
+
+# Load reasoning adapter
+model = PeftModel.from_pretrained(model, "codelion/gemma-3-1b-it-reasoning-grpo-lora")
+
+# Use with thinking prompt
+prompt = '''Think step by step and use <think></think> tags to show your reasoning process.
+
+Problem: If a train travels 120 miles in 2 hours, then increases its speed by 30 mph for the next hour, how many total miles does it travel?
+
+Response:'''
+
+inputs = tokenizer(prompt, return_tensors="pt")
+outputs = model.generate(**inputs, max_new_tokens=512, temperature=0.2)
+response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+```
+
+#### Results
+| Model | Thinking Usage | Quality Score | Training Method | Status |
+|-------|----------------|---------------|-----------------|---------|
+| Gemma-3-1B Base | 0% | 3.2 | - | ⚠️ |
+| Gemma-3-1B + Ellora | 60% | 5.6 | GRPO | ✅ |
+
 ## 🏆 Model Zoo
 
 All models trained using Ellora recipes are available on HuggingFace:
@@ -62,6 +105,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 
 ### Featured Models
 - [`codelion/Qwen3-0.6B-accuracy-recovery-lora`](https://huggingface.co/codelion/Qwen3-0.6B-accuracy-recovery-lora) - Accuracy recovery for Qwen3-0.6B
+- [`codelion/gemma-3-1b-it-reasoning-grpo-lora`](https://huggingface.co/codelion/gemma-3-1b-it-reasoning-grpo-lora) - Reasoning enhancement for Gemma-3-1B
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
