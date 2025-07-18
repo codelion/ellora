@@ -97,6 +97,50 @@ response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 | Gemma-3-1B Base | 0% | 3.2 | - | ⚠️ |
 | Gemma-3-1B + Ellora | 60% | 5.6 | GRPO | ✅ |
 
+### Recipe #3: Tool Calling LoRA
+**Problem**: LLMs struggle with effective tool usage for code exploration  
+**Solution**: Hybrid training with Magpie scenarios + real tool execution results
+
+- 🛠️ **Goal**: Teach models to use development tools effectively
+- 🔄 **Method**: Generate scenarios with Magpie, execute on real codebases
+- 🎯 **Feature**: OpenAI-compatible function calling format
+- 💻 **Tools**: File operations, search, code navigation, and more
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/codelion/ellora/blob/main/Ellora_Recipe_3_Enhanced_Tool_Calling_and_Code_Understanding.ipynb)
+
+**Key Innovation**: Combines synthetic scenario diversity with real execution feedback - ensuring models learn authentic tool usage patterns!
+
+#### Quick Start
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+# Load base model
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
+
+# Load tool calling adapter
+model = PeftModel.from_pretrained(model, "codelion/Llama-3.2-1B-Instruct-tool-calling-lora")
+
+# Use with tool calling prompt
+prompt = '''You have access to the following tools:
+- list_directory: List contents of a directory
+- search_files: Search for files containing specific content
+- read_file: Read a single file's contents
+
+User: Help me understand how user authentication works in this Flask application
+Response:'''
+
+inputs = tokenizer(prompt, return_tensors="pt")
+outputs = model.generate(**inputs, max_new_tokens=512, temperature=0.7)
+```
+
+#### Results
+| Model | Success Rate | Tool Accuracy | Avg Tools/Seq | Status |
+|-------|--------------|---------------|---------------|---------|
+| Llama-3.2-1B Base | 0% | 0% | 0.0 | ⚠️ |
+| Llama-3.2-1B + Ellora | 80% | 80% | 4.0 | ✅ |
+
 ## 🏆 Model Zoo
 
 All models trained using Ellora recipes are available on HuggingFace:
@@ -106,6 +150,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 ### Featured Models
 - [`codelion/Qwen3-0.6B-accuracy-recovery-lora`](https://huggingface.co/codelion/Qwen3-0.6B-accuracy-recovery-lora) - Accuracy recovery for Qwen3-0.6B
 - [`codelion/gemma-3-1b-it-reasoning-grpo-lora`](https://huggingface.co/codelion/gemma-3-1b-it-reasoning-grpo-lora) - Reasoning enhancement for Gemma-3-1B
+- [`codelion/Llama-3.2-1B-Instruct-tool-calling-lora`](https://huggingface.co/codelion/Llama-3.2-1B-Instruct-tool-calling-lora) - Tool calling for Llama-3.2-1B
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
