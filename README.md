@@ -15,6 +15,15 @@ The LLM ecosystem has amazing infrastructure (LoRAX, PEFT, vLLM), but lacks **st
 - 🏗️ **Infrastructure agnostic** - Works with existing tools (PEFT, LoRAX, etc.)
 - 🌍 **Community-driven** - Open recipes for the ecosystem
 
+## 📚 Recipe Collection
+
+| Recipe | Purpose | Key Achievement | Jump to |
+|--------|---------|-----------------|----------|
+| **#1: Accuracy Recovery** | Restore quantized model performance | <5% degradation from FP16 | [Details](#recipe-1-accuracy-recovery-lora) |
+| **#2: Reasoning Enhancement** | Add structured thinking with `<think>` tags | 60% thinking usage, 75% quality boost | [Details](#recipe-2-reasoning-lora-with-grpo) |
+| **#3: Tool Calling** | Enable effective development tool usage | 80% success rate on complex tasks | [Details](#recipe-3-tool-calling-lora) |
+| **#4: Context Extension** | Expand from 32K to 2M tokens | 61x context increase for full repos | [Details](#recipe-4-progressive-context-extension-lora) |
+
 ## 🍳 Available Recipes
 
 ### Recipe #1: Accuracy Recovery LoRA
