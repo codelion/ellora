@@ -110,36 +110,45 @@ response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 **Key Innovation**: Combines synthetic scenario diversity with real execution feedback - ensuring models learn authentic tool usage patterns!
 
+### Recipe #4: Progressive Context Extension LoRA
+**Problem**: Base models limited to 32K context, need 2M tokens for large repositories  
+**Solution**: Progressive curriculum learning with vLLM + Unsloth hybrid approach
+
+- 📈 **Goal**: Extend context from 32K to 2M tokens (61x increase)
+- 🎓 **Method**: Curriculum learning across 4 stages (32K → 128K → 512K → 2M)
+- ⚡ **Innovation**: vLLM for fast data generation, Unsloth for memory-efficient training
+- 🔍 **Feature**: Single LoRA adapter progressively learns longer contexts
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/codelion/ellora/blob/main/Ellora_Recipe_4_Repository_Context_LoRA.ipynb)
+
+**Key Innovation**: Hybrid optimization combining vLLM's inference speed with Unsloth's training efficiency - achieving 61x context extension with minimal compute!
+
 #### Quick Start
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
 # Load base model
-model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-Coder-0.5B-Instruct")
+tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-Coder-0.5B-Instruct")
 
-# Load tool calling adapter
-model = PeftModel.from_pretrained(model, "codelion/Llama-3.2-1B-Instruct-tool-calling-lora")
+# Load progressive context adapter
+model = PeftModel.from_pretrained(model, "codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora")
 
-# Use with tool calling prompt
-prompt = '''You have access to the following tools:
-- list_directory: List contents of a directory
-- search_files: Search for files containing specific content
-- read_file: Read a single file's contents
-
-User: Help me understand how user authentication works in this Flask application
-Response:'''
-
-inputs = tokenizer(prompt, return_tensors="pt")
-outputs = model.generate(**inputs, max_new_tokens=512, temperature=0.7)
+# Use with 2M token context - perfect for large repositories!
+long_context_prompt = "Analyze this entire repository..." # Up to 2M tokens
+inputs = tokenizer(long_context_prompt, return_tensors="pt")
+outputs = model.generate(**inputs, max_new_tokens=1024)
 ```
 
 #### Results
-| Model | Success Rate | Tool Accuracy | Avg Tools/Seq | Status |
-|-------|--------------|---------------|---------------|---------|
-| Llama-3.2-1B Base | 0% | 0% | 0.0 | ⚠️ |
-| Llama-3.2-1B + Ellora | 80% | 80% | 4.0 | ✅ |
+| Model | Context Limit | Max Files | Use Case | Status |
+|-------|---------------|-----------|----------|---------|
+| Qwen2.5-Coder Base | 32K tokens | ~10-20 files | Small projects | ⚠️ |
+| + Stage 0 LoRA | 32K tokens | ~10-20 files | Single module analysis | ✅ |
+| + Stage 1 LoRA | 128K tokens | ~50-100 files | Medium repositories | ✅ |
+| + Stage 2 LoRA | 512K tokens | ~200-500 files | Large codebases | ✅ |
+| + Stage 3 LoRA | 2M tokens | ~1000+ files | Entire repositories | ✅ |
 
 ## 🏆 Model Zoo
 
@@ -151,6 +160,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 - [`codelion/Qwen3-0.6B-accuracy-recovery-lora`](https://huggingface.co/codelion/Qwen3-0.6B-accuracy-recovery-lora) - Accuracy recovery for Qwen3-0.6B
 - [`codelion/gemma-3-1b-it-reasoning-grpo-lora`](https://huggingface.co/codelion/gemma-3-1b-it-reasoning-grpo-lora) - Reasoning enhancement for Gemma-3-1B
 - [`codelion/Llama-3.2-1B-Instruct-tool-calling-lora`](https://huggingface.co/codelion/Llama-3.2-1B-Instruct-tool-calling-lora) - Tool calling for Llama-3.2-1B
+- [`codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora`](https://huggingface.co/codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora) - 2M context extension for Qwen2.5-Coder-0.5B
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
