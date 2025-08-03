@@ -23,6 +23,7 @@ The LLM ecosystem has amazing infrastructure (LoRAX, PEFT, vLLM), but lacks **st
 | **#2: Reasoning Enhancement** | Add structured thinking with `<think>` tags | 60% thinking usage, 75% quality boost | [Details](#recipe-2-reasoning-lora-with-grpo) |
 | **#3: Tool Calling** | Enable effective development tool usage | 80% success rate on complex tasks | [Details](#recipe-3-tool-calling-lora) |
 | **#4: Context Extension** | Expand from 32K to 2M tokens | 61x context increase for full repos | [Details](#recipe-4-progressive-context-extension-lora) |
+| **#5: Secure Code Generation** | Train models to write secure code by default | 97% vulnerability reduction | [Details](#recipe-5-secure-code-generation-lora) |
 
 ## 🍳 Available Recipes
 
@@ -159,6 +160,43 @@ outputs = model.generate(**inputs, max_new_tokens=1024)
 | + Stage 2 LoRA | 512K tokens | ~200-500 files | Large codebases | ✅ |
 | + Stage 3 LoRA | 2M tokens | ~1000+ files | Entire repositories | ✅ |
 
+### Recipe #5: Secure Code Generation LoRA
+**Problem**: LLMs frequently generate code with security vulnerabilities (SQL injection, etc.)  
+**Solution**: GRPO training with automated Semgrep analysis for security scoring
+
+- 🔒 **Goal**: Generate secure code by default without explicit prompting
+- 🛡️ **Method**: Self-supervised training with automatic vulnerability detection
+- 📊 **Scoring**: Partial credit system (40% functionality, 40% patterns, 20% vulnerabilities)
+- ✅ **Results**: 97% reduction in vulnerabilities, 100% functional code
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/codelion/ellora/blob/main/Ellora_Recipe_5_Secure_Code_Generation_LoRA.ipynb)
+
+**Key Innovation**: Automated security analysis replaces manual curation - teaching secure patterns without labeled datasets!
+
+#### Quick Start
+```python
+from transformers import AutoModelForCausalLM
+from peft import PeftModel
+
+# Load base model
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-Coder-0.5B-Instruct")
+
+# Load security adapter
+model = PeftModel.from_pretrained(model, "codelion/qwen2.5-coder-security-grpo-lora")
+
+# Generate secure code by default
+prompt = "Create a function to search for products by name in a database"
+# Model will automatically use parameterized queries!
+```
+
+#### Results
+| Metric | Base Model | + Security LoRA | Improvement |
+|--------|------------|-----------------|-------------|
+| Vulnerability Score | 12.3 | 0.40 | -97% |
+| Functional Code | 95% | 100% | +5% |
+| Partial Credit Score | - | 61.2/100 | - |
+| Uses Secure Patterns | 5% | 76% | +1420% |
+
 ## 🏆 Model Zoo
 
 All models trained using Ellora recipes are available on HuggingFace:
@@ -170,6 +208,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 - [`codelion/gemma-3-1b-it-reasoning-grpo-lora`](https://huggingface.co/codelion/gemma-3-1b-it-reasoning-grpo-lora) - Reasoning enhancement for Gemma-3-1B
 - [`codelion/Llama-3.2-1B-Instruct-tool-calling-lora`](https://huggingface.co/codelion/Llama-3.2-1B-Instruct-tool-calling-lora) - Tool calling for Llama-3.2-1B
 - [`codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora`](https://huggingface.co/codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora) - 2M context extension for Qwen2.5-Coder-0.5B
+- [`codelion/qwen2.5-coder-security-grpo-lora`](https://huggingface.co/codelion/qwen2.5-coder-security-grpo-lora) - Secure code generation for Qwen2.5-Coder-0.5B
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
