@@ -208,7 +208,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 - [`codelion/gemma-3-1b-it-reasoning-grpo-lora`](https://huggingface.co/codelion/gemma-3-1b-it-reasoning-grpo-lora) - Reasoning enhancement for Gemma-3-1B
 - [`codelion/Llama-3.2-1B-Instruct-tool-calling-lora`](https://huggingface.co/codelion/Llama-3.2-1B-Instruct-tool-calling-lora) - Tool calling for Llama-3.2-1B
 - [`codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora`](https://huggingface.co/codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora) - 2M context extension for Qwen2.5-Coder-0.5B
-- [`codelion/qwen2.5-coder-security-grpo-lora`](https://huggingface.co/codelion/qwen2.5-coder-security-grpo-lora) - Secure code generation for Qwen2.5-Coder-0.5B
+- [`codelion/Qwen2.5-Coder-0.5B-Instruct-security-grpo-lora`](https://huggingface.co/codelion/Qwen2.5-Coder-0.5B-Instruct-security-grpo-lora) - Secure code generation for Qwen2.5-Coder-0.5B
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
