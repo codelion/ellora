@@ -24,6 +24,7 @@ The LLM ecosystem has amazing infrastructure (LoRAX, PEFT, vLLM), but lacks **st
 | **#3: Tool Calling** | Enable effective development tool usage | 80% success rate on complex tasks | [Details](#recipe-3-tool-calling-lora) |
 | **#4: Context Extension** | Expand from 32K to 2M tokens | 61x context increase for full repos | [Details](#recipe-4-progressive-context-extension-lora) |
 | **#5: Secure Code Generation** | Train models to write secure code by default | 97% vulnerability reduction | [Details](#recipe-5-secure-code-generation-lora) |
+| **#6: Execution World Model** | Add execution awareness to thinking models | 33% state prediction accuracy | [Details](#recipe-6-execution-world-model-thinking-lora) |
 
 ## 🍳 Available Recipes
 
@@ -197,6 +198,53 @@ prompt = "Create a function to search for products by name in a database"
 | Partial Credit Score | - | 61.2/100 | - |
 | Uses Secure Patterns | 5% | 76% | +1420% |
 
+### Recipe #6: Execution World Model Thinking LoRA
+**Problem**: LLMs can generate and reason about code, but lack execution awareness - understanding how code behaves at runtime, predicting variable states, and comprehending dynamic program behavior
+**Solution**: GRPO-trained adapter combining Qwen3's native thinking with real execution traces, inspired by Meta's CWM (Code World Model)
+
+- 🧠 **Goal**: Add execution awareness to thinking models
+- 🔍 **Method**: Hybrid Magpie-style generation + real Python execution tracing
+- 📊 **Feature**: Predict program states, debug with execution understanding
+- 💡 **Model**: Built on Qwen3-4B-Thinking-2507 with 262K context
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/codelion/ellora/blob/main/Ellora_Recipe_6_Execution_World_Model_Thinking_LoRA.ipynb)
+
+**Key Innovation**: Combines Qwen3's thinking capabilities with real execution traces captured via Python's trace module - creating a "neural debugger" that understands both logic AND runtime behavior!
+
+#### Quick Start
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+# Load base model
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-4B-Thinking-2507")
+tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-4B-Thinking-2507")
+
+# Load execution world model adapter
+model = PeftModel.from_pretrained(model, "codelion/Qwen3-4B-execution-world-model-lora")
+
+# Analyze code with execution awareness
+code = """
+x = 10
+y = x * 2
+z = x + y
+"""
+
+prompt = f"Analyze this code and predict its execution trace step by step:\n\n```python\n{code}\n```"
+inputs = tokenizer(prompt, return_tensors="pt")
+outputs = model.generate(**inputs, max_new_tokens=512, temperature=0.1)
+response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+# Model will predict variable states at each line!
+```
+
+#### Results
+| Metric | Value | Training Data | Status |
+|--------|-------|---------------|--------|
+| Overall Accuracy | 20.0% | 298 samples | 🚧 |
+| Mean State Accuracy | 33.3% | Self-generated | 🚧 |
+| Base Model | Qwen3-4B-Thinking | 262K context | ✅ |
+| Training Method | GRPO | Execution traces | ✅ |
+
 ## 🏆 Model Zoo
 
 All models trained using Ellora recipes are available on HuggingFace:
@@ -209,6 +257,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 - [`codelion/Llama-3.2-1B-Instruct-tool-calling-lora`](https://huggingface.co/codelion/Llama-3.2-1B-Instruct-tool-calling-lora) - Tool calling for Llama-3.2-1B
 - [`codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora`](https://huggingface.co/codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora) - 2M context extension for Qwen2.5-Coder-0.5B
 - [`codelion/Qwen2.5-Coder-0.5B-Instruct-security-grpo-lora`](https://huggingface.co/codelion/Qwen2.5-Coder-0.5B-Instruct-security-grpo-lora) - Secure code generation for Qwen2.5-Coder-0.5B
+- [`codelion/Qwen3-4B-execution-world-model-lora`](https://huggingface.co/codelion/Qwen3-4B-execution-world-model-lora) - Execution-aware world model for Qwen3-4B-Thinking
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
@@ -228,3 +277,4 @@ If you use Ellora recipes in your research, please cite:
 - **LoRA**: [Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)
 - **Magpie**: [Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
 - **QLoRA**: [Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314)
+- **CWM**: [An Open-Weights LLM for Research on Code Generation with World Models](https://ai.meta.com/research/publications/cwm-an-open-weights-llm-for-research-on-code-generation-with-world-models/)
