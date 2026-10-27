@@ -25,6 +25,7 @@ The LLM ecosystem has amazing infrastructure (LoRAX, PEFT, vLLM), but lacks **st
 | **#4: Context Extension** | Expand from 32K to 2M tokens | 61x context increase for full repos | [Details](#recipe-4-progressive-context-extension-lora) |
 | **#5: Secure Code Generation** | Train models to write secure code by default | 97% vulnerability reduction | [Details](#recipe-5-secure-code-generation-lora) |
 | **#6: Execution World Model** | Add execution awareness to thinking models | 33% state prediction accuracy | [Details](#recipe-6-execution-world-model-thinking-lora) |
+| **#7: Zero to Fine-Tuned** | Fine-tune on a dataset invented from a plain-language request | Perplexity 5.72 to 4.35 in 8 min on a free T4 | [Details](#recipe-7-zero-to-fine-tuned-with-an-invented-dataset) |
 
 ## 🍳 Available Recipes
 
@@ -245,6 +246,47 @@ response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 | Base Model | Qwen3-4B-Thinking | 262K context | ✅ |
 | Training Method | GRPO | Execution traces | ✅ |
 
+### Recipe #7: Zero to Fine-Tuned with an Invented Dataset
+**Problem**: Fine-tuning for a new domain usually starts with a dataset nobody has written yet
+**Solution**: Invent the rows with [DataInventor](https://huggingface.co/spaces/LocalLLaMA/data-inventor), an open-source recreation of the Invent a Dataset workflow, then train a LoRA adapter on them and compare it with the base model on held-out rows
+
+- 🧪 **Goal**: Go from a one-sentence description of the data to a fine-tuned adapter with open tools only
+- 📝 **Data**: [LocalLLaMA/datainventor-support-banking](https://huggingface.co/datasets/LocalLLaMA/datainventor-support-banking), 200 synthetic banking support conversations (170 train, 30 held out)
+- 🔧 **Method**: Supervised LoRA fine-tuning (r=16, all attention and MLP projections), loss on reply tokens only
+- 💡 **Model**: Built on Qwen2.5-1.5B-Instruct, about 8 minutes end to end on a free Colab T4
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/codelion/ellora/blob/main/Ellora_Recipe_7_Zero_to_Fine_Tuned_with_an_Invented_Dataset.ipynb)
+
+**Key Innovation**: The whole pipeline is open, from the dataset generator to the adapter. An optional cell invents fresh rows through the DataInventor API, so the same notebook works for any domain you can describe in a sentence.
+
+#### Quick Start
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+# Load base model
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
+tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
+
+# Load banking support adapter
+model = PeftModel.from_pretrained(model, "sandeep85/Qwen2.5-1.5B-Instruct-banking-support-lora")
+
+messages = [{"role": "user", "content": "How do I activate my new credit card?"}]
+inputs = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
+outputs = model.generate(inputs, max_new_tokens=400)
+print(tokenizer.decode(outputs[0][inputs.shape[-1]:], skip_special_tokens=True))
+```
+
+#### Results
+| Metric (30 held-out rows) | Base Model | + LoRA | Status |
+|--------|-------|---------------|--------|
+| Reply Loss | 1.744 | 1.470 | ✅ |
+| Perplexity | 5.72 | 4.35 | ✅ |
+| ROUGE-L vs Reference | 0.196 | 0.230 | ✅ |
+| Embedding Similarity | 0.668 | 0.734 | ✅ |
+
+The metrics compare replies with the dataset's reference answers, so they show the adapter picked up the style and content of the invented data, not real-world support quality.
+
 ## 🏆 Model Zoo
 
 All models trained using Ellora recipes are available on HuggingFace:
@@ -258,6 +300,7 @@ All models trained using Ellora recipes are available on HuggingFace:
 - [`codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora`](https://huggingface.co/codelion/qwen2-5-coder-0-5b-instruct-progressive-2000k-lora) - 2M context extension for Qwen2.5-Coder-0.5B
 - [`codelion/Qwen2.5-Coder-0.5B-Instruct-security-grpo-lora`](https://huggingface.co/codelion/Qwen2.5-Coder-0.5B-Instruct-security-grpo-lora) - Secure code generation for Qwen2.5-Coder-0.5B
 - [`codelion/Qwen3-4B-execution-world-model-lora`](https://huggingface.co/codelion/Qwen3-4B-execution-world-model-lora) - Execution-aware world model for Qwen3-4B-Thinking
+- [`sandeep85/Qwen2.5-1.5B-Instruct-banking-support-lora`](https://huggingface.co/sandeep85/Qwen2.5-1.5B-Instruct-banking-support-lora) - Banking support adapter trained on a DataInventor dataset
 - More models coming as we test recipes across different model families!
 
 ## 🔬 Research & Citations
